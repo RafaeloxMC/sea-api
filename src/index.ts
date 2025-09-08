@@ -1,6 +1,5 @@
 import { app } from "./createApp";
 
-import express from "express";
 import router from "./routes/router";
 
 app.listen(3366, () => {

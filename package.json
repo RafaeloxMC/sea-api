@@ -1,0 +1,32 @@
+{
+	"name": "sea-api",
+	"version": "1.0.0",
+	"description": "API for Shoot 'Em All",
+	"homepage": "https://github.com/RafaeloxMC/sea-api#readme",
+	"bugs": {
+		"url": "https://github.com/RafaeloxMC/sea-api/issues"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/RafaeloxMC/sea-api.git"
+	},
+	"license": "ISC",
+	"author": "xvcf",
+	"type": "commonjs",
+	"main": "dist/index.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1",
+		"dev": "tsx watch src/index.ts"
+	},
+	"dependencies": {
+		"express": "^5.1.0",
+		"mongoose": "^8.18.0",
+		"tsc": "^2.0.4",
+		"typescript": "^5.9.2"
+	},
+	"devDependencies": {
+		"@types/express": "^5.0.3",
+		"@types/mongoose": "^5.11.96",
+		"tsx": "^4.20.5"
+	}
+}

@@ -32,87 +32,94 @@ router.post("/leaderboard/session", (req, res) => {
 });
 
 router.post("/leaderboard", async (req, res) => {
-	if (
-		!req.body ||
-		req.body.sessionId === undefined ||
-		req.body.score === undefined ||
-		req.body.accuracy === undefined
-	) {
-		if (req.body) console.log(req.body);
-		return res.status(400).json({ error: "Missing required fields" });
-	}
-
-	const {
-		sessionId,
-		score,
-		accuracy,
-	}: { sessionId: string; score: number; accuracy: number } = req.body;
-
-	const session = activeSessions.get(sessionId);
-	if (!session) {
-		return res.status(400).json({ error: "Invalid or expired session" });
-	}
-
-	const now = Date.now();
-	const gameDuration = now - session.startTime;
-
-	if (
-		gameDuration < 10000 ||
-		gameDuration > session.expectedDuration + 5000
-	) {
-		return res.status(400).json({ error: "Invalid game duration" });
-	}
-
-	if (!isScoreReasonable(score, accuracy, gameDuration)) {
-		return res.status(400).json({ error: "Invalid score data" });
-	}
-
 	try {
-		const entry = new leaderboardEntry({
+		if (
+			!req.body ||
+			req.body.sessionId === undefined ||
+			req.body.score === undefined ||
+			req.body.accuracy === undefined
+		) {
+			if (req.body) console.log(req.body);
+			return res.status(400).json({ error: "Missing required fields" });
+		}
+
+		const {
+			sessionId,
 			score,
 			accuracy,
-			date: new Date(),
-		});
+		}: { sessionId: string; score: number; accuracy: number } = req.body;
 
-		const savedEntry = await entry.save();
-		activeSessions.delete(sessionId);
-
-		res.status(201).json({
-			message: "Score submitted successfully",
-			playerName: savedEntry.name,
-		});
-	} catch (error: any) {
-		console.error("Database save error:", error);
-
-		if (error.code === 11000) {
-			try {
-				const retryEntry = new leaderboardEntry({
-					name:
-						"SEA-Player-" +
-						Date.now() +
-						"-" +
-						Math.floor(Math.random() * 1000000),
-					score,
-					accuracy,
-					date: new Date(),
-				});
-
-				const savedRetryEntry = await retryEntry.save();
-				activeSessions.delete(sessionId);
-
-				res.status(201).json({
-					message: "Score submitted successfully",
-					playerName: savedRetryEntry.name,
-				});
-			} catch (retryError) {
-				console.error("Retry save error:", retryError);
-				res.status(500).json({
-					error: "Failed to save score after retry",
-				});
-			}
-		} else {
-			res.status(500).json({ error: "Failed to save score" });
+		const session = activeSessions.get(sessionId);
+		if (!session) {
+			return res
+				.status(400)
+				.json({ error: "Invalid or expired session" });
 		}
+
+		const now = Date.now();
+		const gameDuration = now - session.startTime;
+
+		if (
+			gameDuration < 10000 ||
+			gameDuration > session.expectedDuration + 5000
+		) {
+			return res.status(400).json({ error: "Invalid game duration" });
+		}
+
+		if (!isScoreReasonable(score, accuracy, gameDuration)) {
+			return res.status(400).json({ error: "Invalid score data" });
+		}
+
+		try {
+			const entry = new leaderboardEntry({
+				score,
+				accuracy,
+				date: new Date(),
+			});
+
+			const savedEntry = await entry.save();
+			activeSessions.delete(sessionId);
+
+			return res.status(201).json({
+				message: "Score submitted successfully",
+				playerName: savedEntry.name,
+			});
+		} catch (error: any) {
+			console.error("Database save error:", error);
+
+			if (error.code === 11000) {
+				try {
+					const retryEntry = new leaderboardEntry({
+						name:
+							"SEA-Player-" +
+							Date.now() +
+							"-" +
+							Math.floor(Math.random() * 1000000),
+						score,
+						accuracy,
+						date: new Date(),
+					});
+
+					const savedRetryEntry = await retryEntry.save();
+					activeSessions.delete(sessionId);
+
+					return res.status(201).json({
+						message: "Score submitted successfully",
+						playerName: savedRetryEntry.name,
+					});
+				} catch (retryError) {
+					console.error("Retry save error:", retryError);
+					return res.status(500).json({
+						error: "Failed to save score after retry",
+					});
+				}
+			} else {
+				return res.status(500).json({ error: "Failed to save score" });
+			}
+		}
+	} catch (err) {
+		console.error("Unexpected error:", err);
+		return res.status(500).json({ error: "Unexpected server error" });
 	}
 });
 

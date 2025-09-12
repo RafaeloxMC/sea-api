@@ -1,14 +1,11 @@
 import mongoose, { model, SchemaTypes } from "mongoose";
 
 const leaderboardEntry = new mongoose.Schema({
-	id: {
-		type: SchemaTypes.ObjectId,
-		unique: true,
-		required: true,
-	},
 	name: {
 		type: String,
-		default: "SEA-Player-" + Math.floor(Math.random() * 10000),
+		default: function () {
+			return "SEA-Player-" + Math.floor(Math.random() * 1000000);
+		},
 		unique: true,
 		required: false,
 	},
@@ -26,7 +23,7 @@ const leaderboardEntry = new mongoose.Schema({
 	},
 	date: {
 		type: Date,
-		default: Date.now(),
+		default: Date.now,
 		unique: false,
 		required: false,
 	},

@@ -1,6 +1,9 @@
 import mongoose from "mongoose";
+import dotenv from "dotenv";
 
-export function conn() {
+dotenv.config();
+
+export default function conn() {
 	console.log("Connecting to MongoDB...");
 	mongoose.connect(process.env.DB_URI ?? "");
 }

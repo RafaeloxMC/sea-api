@@ -1,11 +1,14 @@
 import { app } from "./createApp";
+import conn from "./database/db";
 
 import router from "./routes/router";
 
+conn();
+
+app.use(router);
+
 app.listen(3366, () => {
 	console.log("Up and running!");
-
-	app.use(router);
 });
 
 process.on("SIGTERM", () => {

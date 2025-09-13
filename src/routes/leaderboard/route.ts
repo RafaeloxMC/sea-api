@@ -1,5 +1,6 @@
 import express from "express";
 import leaderboardEntry from "../../database/schemas/leaderboardEntry";
+import mongoose from "mongoose";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -33,6 +34,17 @@ router.post("/leaderboard/session", (req, res) => {
 
 router.post("/leaderboard", async (req, res) => {
 	try {
+		// Check database connection
+		if (mongoose.connection.readyState !== 1) {
+			console.error(
+				"Database not connected. ReadyState:",
+				mongoose.connection.readyState
+			);
+			return res
+				.status(503)
+				.json({ error: "Database connection unavailable" });
+		}
+
 		if (
 			!req.body ||
 			req.body.sessionId === undefined ||
@@ -91,6 +103,18 @@ router.post("/leaderboard", async (req, res) => {
 			});
 		} catch (error: any) {
 			console.error("Database save error:", error);
+			console.error("Error name:", error.name);
+			console.error("Connection state:", mongoose.connection.readyState);
+
+			if (error.name === "MongooseServerSelectionError") {
+				console.error(
+					"MongoDB connection failed - check network access settings"
+				);
+				return res.status(503).json({
+					error: "Database connection failed",
+					details: "Service temporarily unavailable",
+				});
+			}
 
 			if (error.code === 11000) {
 				try {
@@ -119,7 +143,13 @@ router.post("/leaderboard", async (req, res) => {
 					});
 				}
 			} else {
-				return res.status(500).json({ error: "Failed to save score" });
+				return res.status(500).json({
+					error: "Failed to save score",
+					details:
+						process.env.NODE_ENV === "development"
+							? error.message
+							: "Internal server error",
+				});
 			}
 		}
 	} catch (err) {

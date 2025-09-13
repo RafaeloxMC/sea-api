@@ -72,6 +72,11 @@ router.post("/leaderboard", async (req, res) => {
 
 		try {
 			const entry = new leaderboardEntry({
+				name:
+					"SEA-Player-" +
+					Date.now() +
+					"-" +
+					Math.floor(Math.random() * 1000000),
 				score,
 				accuracy,
 				date: new Date(),
@@ -94,7 +99,7 @@ router.post("/leaderboard", async (req, res) => {
 							"SEA-Player-" +
 							Date.now() +
 							"-" +
-							Math.floor(Math.random() * 1000000),
+							Math.floor(Math.random() * 10000000),
 						score,
 						accuracy,
 						date: new Date(),

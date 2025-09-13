@@ -1,12 +1,18 @@
-import mongoose, { model, SchemaTypes } from "mongoose";
+import mongoose, { model, Types } from "mongoose";
 
 const leaderboardEntry = new mongoose.Schema({
+	_id: {
+		type: Types.ObjectId,
+		unique: true,
+		required: true,
+		default: new Types.ObjectId(),
+	},
 	name: {
 		type: String,
 		default: function () {
 			return "SEA-Player-" + Math.floor(Math.random() * 1000000);
 		},
-		unique: true,
+		unique: false,
 		required: false,
 	},
 	score: {

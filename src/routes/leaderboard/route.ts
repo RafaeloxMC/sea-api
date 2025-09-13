@@ -121,8 +121,6 @@ router.post("/leaderboard", async (req, res) => {
 					const retryEntry = new leaderboardEntry({
 						name:
 							"SEA-Player-" +
-							Date.now() +
-							"-" +
 							Math.floor(Math.random() * 10000000),
 						score,
 						accuracy,

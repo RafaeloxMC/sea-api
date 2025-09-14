@@ -1,12 +1,6 @@
 import mongoose, { model, Types } from "mongoose";
 
 const leaderboardEntry = new mongoose.Schema({
-	_id: {
-		type: Types.ObjectId,
-		unique: true,
-		required: true,
-		default: new Types.ObjectId(),
-	},
 	name: {
 		type: String,
 		default: function () {
